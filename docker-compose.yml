@@ -1,0 +1,70 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: buddyscript-postgres
+    restart: always
+    environment:
+      - POSTGRES_DB=buddyscript_db
+      - POSTGRES_USER=buddyscript_user
+      - POSTGRES_PASSWORD=buddyscript_pass
+    ports:
+      - "5411:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  backend:
+    build:
+      context: ./Backend
+      dockerfile: Dockerfile
+    container_name: buddyscript-backend
+    ports:
+      - "8000:8000"
+    environment:
+      - POSTGRES_DB=buddyscript_db
+      - POSTGRES_USER=buddyscript_user
+      - POSTGRES_PASSWORD=buddyscript_pass
+      - POSTGRES_HOST=db
+      - POSTGRES_PORT=5432
+      - DJANGO_SECRET_KEY=django-insecure-docker-compose-production-key-change-me
+      - DEBUG=True
+      - ALLOWED_HOSTS=*
+      - CORS_ALLOWED_ORIGINS=http://localhost:3000
+    volumes:
+      - ./Backend:/app
+      - media_data:/app/media
+    depends_on:
+      - db
+    restart: always
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    container_name: buddyscript-frontend
+    ports:
+      - "3000:3000"
+    command: npm run dev
+    environment:
+      - NEXT_PUBLIC_API_URL=http://localhost:8000/api
+      - NODE_ENV=development
+      - WATCHPACK_POLLING=true
+    volumes:
+      - ./Frontend:/app
+      - /app/node_modules
+      - /app/.next
+    depends_on:
+      - backend
+    restart: always
+
+  redis:
+    image: redis:7-alpine
+    container_name: buddyscript-redis
+    ports:
+      - "6311:6379"
+    restart: always
+
+volumes:
+  postgres_data:
+  media_data:
