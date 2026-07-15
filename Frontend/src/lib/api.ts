@@ -1,6 +1,6 @@
 "use client";
 
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000/api";
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8011/api";
 
 class APIError extends Error {
   status: number;
