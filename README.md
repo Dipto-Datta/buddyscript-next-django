@@ -56,6 +56,12 @@ To log into Django Admin and toggle features like global 2FA:
 docker compose exec backend python manage.py createsuperuser
 ```
 
+### 3. Seed Initial Data
+To populate the database with sample data *(generates 5,000 users, 50,000 posts, 20,000 comments, and 60,000 reactions)*:
+```bash
+docker compose exec backend python manage.py seed_data
+```
+
 ---
 
 ## Manual Verification Guide

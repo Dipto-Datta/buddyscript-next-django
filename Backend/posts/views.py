@@ -49,6 +49,19 @@ class CommentCursorPagination(CursorPagination):
 
 from django.core.cache import cache
 
+def get_user_feed_version(user_id):
+    if not user_id:
+        return 1
+    cache_key = f"user_feed_version_{user_id}"
+    return cache.get(cache_key) or 1
+
+def bump_user_feed_version(user_id):
+    if not user_id:
+        return
+    import time
+    cache_key = f"user_feed_version_{user_id}"
+    cache.set(cache_key, int(time.time()), timeout=86400)
+
 
 class PostListCreateView(generics.ListCreateAPIView):
     pagination_class = PostCursorPagination
@@ -67,7 +80,8 @@ class PostListCreateView(generics.ListCreateAPIView):
     def list(self, request, *args, **kwargs):
         user = request.user
         cursor = request.query_params.get("cursor", "none")
-        cache_key = f"user_feed_{user.id}_cursor_{cursor}"
+        version = get_user_feed_version(user.id)
+        cache_key = f"user_feed_{user.id}_v{version}_cursor_{cursor}"
 
         cached_data = cache.get(cache_key)
         if cached_data is not None:
@@ -88,7 +102,7 @@ class PostListCreateView(generics.ListCreateAPIView):
 
     def perform_create(self, serializer):
         post = serializer.save(author=self.request.user)
-        cache.delete(f"user_feed_{self.request.user.id}_cursor_none")
+        bump_user_feed_version(self.request.user.id)
         Notification.objects.create(
             recipient=self.request.user,
             sender=self.request.user,
@@ -118,6 +132,15 @@ class PostDetailView(generics.RetrieveUpdateDestroyAPIView):
         if self.request.method in ("PUT", "PATCH"):
             return PostCreateSerializer
         return PostSerializer
+
+    def perform_update(self, serializer):
+        super().perform_update(serializer)
+        bump_user_feed_version(self.request.user.id)
+
+    def perform_destroy(self, instance):
+        author_id = instance.author_id
+        super().perform_destroy(instance)
+        bump_user_feed_version(author_id)
 
 
 # ───────────────────────────── Like Views ─────────────────────────────
@@ -160,6 +183,10 @@ class PostLikeToggleView(APIView):
                                        reaction_type=reaction_type)
             user_reaction = reaction_type
             created = True
+
+        bump_user_feed_version(request.user.id)
+        if post.author_id != request.user.id:
+            bump_user_feed_version(post.author_id)
 
         if user_reaction is not None and post.author != request.user:
             Notification.objects.update_or_create(
@@ -222,6 +249,10 @@ class CommentListCreateView(generics.ListCreateAPIView):
         comment = serializer.save(author=self.request.user,
                                   post_id=self.kwargs["post_id"])
         post = comment.post
+        bump_user_feed_version(self.request.user.id)
+        if post.author_id != self.request.user.id:
+            bump_user_feed_version(post.author_id)
+
         if post.author != self.request.user:
             Notification.objects.create(
                 recipient=post.author,
@@ -261,6 +292,11 @@ class CommentReplyView(APIView):
             post=parent_comment.post,
             parent=parent_comment,
         )
+        bump_user_feed_version(request.user.id)
+        bump_user_feed_version(parent_comment.post.author_id)
+        if parent_comment.author_id != parent_comment.post.author_id:
+            bump_user_feed_version(parent_comment.author_id)
+
         if parent_comment.author != request.user:
             Notification.objects.create(
                 recipient=parent_comment.author,

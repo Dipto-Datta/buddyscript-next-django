@@ -106,6 +106,7 @@ export default function FeedPage() {
     getScrollElement: () => parentRef.current,
     estimateSize: () => 350,
     overscan: 5,
+    getItemKey: useCallback((index: number) => posts[index]?.id ?? index, [posts]),
   });
 
   if (authLoading) {

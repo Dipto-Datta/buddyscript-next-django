@@ -8,6 +8,7 @@ const EVENTS = [
     month: "Jul",
     title: "No more terrorism no more cry",
     image: "/assets/images/feed_event1.png",
+    goingCount: 17,
   },
   {
     id: 2,
@@ -15,6 +16,7 @@ const EVENTS = [
     month: "Jul",
     title: "No more terrorism no more cry",
     image: "/assets/images/feed_event1.png",
+    goingCount: 23,
   },
   {
     id: 3,
@@ -22,6 +24,7 @@ const EVENTS = [
     month: "Jul",
     title: "No more terrorism no more cry",
     image: "/assets/images/feed_event1.png",
+    goingCount: 12,
   },
   {
     id: 4,
@@ -29,6 +32,7 @@ const EVENTS = [
     month: "Jul",
     title: "No more terrorism no more cry",
     image: "/assets/images/feed_event1.png",
+    goingCount: 45,
   },
 ];
 
@@ -39,24 +43,34 @@ export default function EventsCard() {
         <div className="flex items-center justify-between">
           <h3 className="font-bold text-sm tracking-tight text-left">Events</h3>
           <button className="text-xs text-blue-600 dark:text-blue-400 font-semibold hover:underline">
-            See All
+            See all
           </button>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-4">
           {EVENTS.map((event) => (
-            <div key={event.id} className="rounded-lg overflow-hidden border border-slate-100 dark:border-slate-800">
+            <div key={event.id} className="rounded-xl overflow-hidden border border-slate-100 dark:border-slate-800/60 bg-white dark:bg-slate-900 shadow-sm">
               <img src={event.image} alt="Event Graphic" className="w-full aspect-video object-cover" />
-              <div className="p-3 flex gap-3 bg-slate-50 dark:bg-slate-950/30">
-                <div className="flex flex-col items-center justify-center bg-white dark:bg-slate-900 border border-slate-200/80 dark:border-slate-800 rounded px-2.5 py-1">
-                  <span className="text-sm font-bold leading-tight">{event.day}</span>
-                  <span className="text-[10px] uppercase text-slate-400 font-bold">{event.month}</span>
+              
+              <div className="p-3 flex gap-3 items-center">
+                <div className="flex flex-col items-center justify-center bg-[#00c78b] text-white rounded-lg px-2 py-2 min-w-[46px] h-[46px] shrink-0">
+                  <span className="text-sm font-extrabold leading-none">{event.day}</span>
+                  <span className="text-[9px] uppercase font-extrabold leading-none mt-1">{event.month}</span>
                 </div>
-                <div className="text-left flex-1 flex items-center">
-                  <h4 className="text-xs font-semibold line-clamp-2 text-slate-700 dark:text-slate-300">
+                <div className="text-left flex-1">
+                  <h4 className="text-xs font-bold line-clamp-2 text-slate-800 dark:text-slate-200 leading-tight">
                     {event.title}
                   </h4>
                 </div>
+              </div>
+
+              <div className="px-3 py-2 border-t border-slate-100 dark:border-slate-800/60 flex items-center justify-between bg-slate-50/50 dark:bg-slate-950/20">
+                <span className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  {event.goingCount} People Going
+                </span>
+                <button className="px-3.5 py-1 text-xs font-semibold text-blue-600 dark:text-blue-400 border border-blue-600 dark:border-blue-400 rounded-md hover:bg-blue-50 dark:hover:bg-blue-950/30 transition-colors">
+                  Going
+                </button>
               </div>
             </div>
           ))}
