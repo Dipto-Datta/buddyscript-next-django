@@ -46,9 +46,9 @@ From the root project directory, run:
 docker compose up --build
 ```
 This command builds the Next.js and Django images, runs migrations, and spins up:
-- **Frontend**: http://localhost:3000
-- **Backend (API)**: http://localhost:8000
-- **Django Admin**: http://localhost:8000/admin
+- **Frontend**: http://localhost:3011
+- **Backend (API)**: http://localhost:8011
+- **Django Admin**: http://localhost:8011/admin
 
 ### 2. Create Admin Superuser
 To log into Django Admin and toggle features like global 2FA:
@@ -66,8 +66,8 @@ docker compose exec backend python manage.py seed_data
 
 ## Manual Verification Guide
 
-1. Navigate to http://localhost:3000/register and sign up.
-2. Sign in at http://localhost:3000/login.
+1. Navigate to http://localhost:3011/register and sign up.
+2. Sign in at http://localhost:3011/login.
 3. Test creating a **Public** post (e.g. text + upload an image).
 4. Log out, create a second user, and log in.
 5. On the feed, verify you see the first user's public post. Write a comment, like the post, write a reply to your comment, and toggle likes.
